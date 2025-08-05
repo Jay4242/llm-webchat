@@ -270,17 +270,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sendMessage = async () => {
         const message = userInput.value.trim();
-        if (message === '') return;
 
-        appendMessage('user', message);
-        userInput.value = ''; // Clear input
+        // Only append a new message to the chat history if the input is not empty
+        if (message !== '') {
+            appendMessage('user', message);
+            userInput.value = ''; // Clear input
+        }
 
-        loadingIndicator.style.display = 'block'; // Show loading indicator
-
+        // Get the current branch messages, which now includes the newly added message if any
         const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
         const chatMessages = currentBranch.messages
             .filter(msg => msg.checked)
             .map(msg => ({ sender: msg.sender, text: msg.text }));
+
+        // If there are no messages to send (empty chat, empty input), do not send an empty request
+        // The LLM API typically requires at least one message.
+        if (chatMessages.length === 0 && message === '') {
+            console.warn('No messages to send. Input and history are empty.');
+            return;
+        }
+
+        loadingIndicator.style.display = 'block'; // Show loading indicator
 
         try {
             const response = await fetch('/chat', {
