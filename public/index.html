@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Web Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle">☀️</button>
+    <button id="settings-toggle" class="settings-toggle">⚙️</button>
+
+    <div class="chat-container">
+        <div class="branch-controls">
+            <label for="branch-select">Current Branch:</label>
+            <select id="branch-select"></select>
+        </div>
+        <div class="chat-history" id="chat-history"></div>
+        <div class="loading-indicator" id="loading-indicator" style="display: none;">
+            <span>Loading...</span>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="add-user-message-button">Add User Message</button>
+            <button id="add-assistant-message-button">Add Assistant Message</button>
+            <button id="send-button">Send</button>
+            <button id="export-json-button">Export JSON</button>
+        </div>
+    </div>
+
+    <div id="json-overlay" class="overlay">
+        <div class="overlay-content">
+            <pre id="json-display"></pre>
+            <button id="close-overlay-button">Close</button>
+        </div>
+    </div>
+
+    <div id="settings-overlay" class="overlay">
+        <div class="overlay-content settings-overlay-content">
+            <h2>LLM API Settings</h2>
+            <label for="llm-url-input">LLM Base URL:</label>
+            <input type="text" id="llm-url-input" placeholder="e.g., http://localhost:8000/v1">
+            <div class="settings-buttons">
+                <button id="save-settings-button" class="settings-button">Save</button>
+                <button id="cancel-settings-button" class="settings-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="chat.js"></script>
+</body>
+</html>
