@@ -39,13 +39,29 @@ app.post('/chat', async (req, res) => {
   const chatHistory = req.body.history || []; // Get chat history, default to empty array
   const llmBaseUrl = req.body.llmBaseUrl; // Get the configurable LLM base URL
 
-  if (!userMessage) {
-    return res.status(400).send('Message is required');
+  // Construct messages array for LLM, including history and current message.
+  // The 'userMessage' might be an empty string if the user sent an empty input,
+  // in which case it will be added as a message with empty content.
+  const messagesForLLM = chatHistory.map(msg => ({ role: msg.sender, content: msg.text }));
+
+  // Only add the new user message if it's not an empty string AND if there's no history,
+  // or if there is history. The frontend ensures that we don't send an entirely empty
+  // request (no history, no message).
+  if (userMessage !== '' || messagesForLLM.length === 0) {
+      messagesForLLM.push({ role: 'user', content: userMessage });
   }
 
-  // Construct messages array for LLM, including history and current message
-  const messagesForLLM = chatHistory.map(msg => ({ role: msg.sender, content: msg.text }));
-  messagesForLLM.push({ role: 'user', content: userMessage });
+  // If after processing, messagesForLLM is still empty, it means only an empty message was passed
+  // and there was existing history. This implies the frontend only wanted to resend history
+  // without a new message. The LLM typically needs a message from the user.
+  // Re-evaluate if this logic path needs to enforce a user message if history is present.
+  // For now, if messagesForLLM becomes empty, it indicates an issue or an edge case
+  // where the frontend should have prevented the call. The earlier check in chat.js
+  // `if (chatMessages.length === 0 && message === '')` should prevent this.
+  if (messagesForLLM.length === 0) {
+      console.warn('Backend received an empty message list for LLM. This should ideally be prevented by the frontend.');
+      return res.status(400).send('No valid messages to send to LLM.');
+  }
 
   try {
     // Pass the llmBaseUrl to the chatWithLLM function
