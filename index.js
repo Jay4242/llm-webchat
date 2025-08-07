@@ -8,7 +8,7 @@ const port = 3000;
 app.use(express.static('public'));
 app.use(express.json()); // For parsing application/json
 
-async function chatWithLLM(messages, llmBaseUrl) {
+async function chatWithLLM(messages, llmBaseUrl, systemPrompt) {
   // Use the provided llmBaseUrl or fall back to a default if not provided/valid
   const effectiveBaseUrl = llmBaseUrl || 'http://localhost:9090/v1'; // Default fallback
 
@@ -18,8 +18,18 @@ async function chatWithLLM(messages, llmBaseUrl) {
   });
 
   try {
+    // Construct messages array with system prompt if provided
+    let messagesForLLM = [...messages];
+    
+    if (systemPrompt && systemPrompt.trim() !== '') {
+      messagesForLLM = [
+        { role: 'system', content: systemPrompt },
+        ...messagesForLLM
+      ];
+    }
+
     const chatCompletion = await openai.chat.completions.create({
-      messages: messages,
+      messages: messagesForLLM,
       model: 'gpt-3.5-turbo', // Model name might vary for local LLMs, gpt-3.5-turbo is a common placeholder
     });
     return chatCompletion.choices[0].message.content;
@@ -38,6 +48,7 @@ app.post('/chat', async (req, res) => {
   const userMessage = req.body.message;
   const chatHistory = req.body.history || []; // Get chat history, default to empty array
   const llmBaseUrl = req.body.llmBaseUrl; // Get the configurable LLM base URL
+  const systemPrompt = req.body.systemPrompt; // Get the system prompt
 
   // Construct messages array for LLM, including history and current message.
   // The 'userMessage' might be an empty string if the user sent an empty input,
@@ -64,8 +75,8 @@ app.post('/chat', async (req, res) => {
   }
 
   try {
-    // Pass the llmBaseUrl to the chatWithLLM function
-    const llmResponse = await chatWithLLM(messagesForLLM, llmBaseUrl);
+    // Pass the llmBaseUrl and systemPrompt to the chatWithLLM function
+    const llmResponse = await chatWithLLM(messagesForLLM, llmBaseUrl, systemPrompt);
     res.json({ reply: llmResponse });
   } catch (error) {
     res.status(500).json({ error: 'Failed to get response from LLM' });
