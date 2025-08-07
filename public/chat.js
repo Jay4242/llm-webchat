@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsOverlay = document.getElementById('settings-overlay');
     const llmUrlInput = document.getElementById('llm-url-input');
+    const systemPromptInput = document.getElementById('system-prompt-input');
     const saveSettingsButton = document.getElementById('save-settings-button');
     const cancelSettingsButton = document.getElementById('cancel-settings-button');
 
@@ -43,7 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // LLM Settings Logic
     const DEFAULT_LLM_URL = 'http://localhost:9090/v1';
     let currentLlmUrl = localStorage.getItem('llmBaseUrl') || DEFAULT_LLM_URL;
+    let currentSystemPrompt = localStorage.getItem('systemPrompt') || '';
+    
     llmUrlInput.value = currentLlmUrl; // Set initial value in input field
+    systemPromptInput.value = currentSystemPrompt; // Set initial value in system prompt input
 
     settingsToggle.addEventListener('click', () => {
         llmUrlInput.value = currentLlmUrl; // Populate with current URL when opening
@@ -52,6 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveSettingsButton.addEventListener('click', () => {
         const newUrl = llmUrlInput.value.trim();
+        const newSystemPrompt = systemPromptInput.value.trim();
+        
         if (newUrl) {
             currentLlmUrl = newUrl;
             localStorage.setItem('llmBaseUrl', newUrl);
@@ -61,6 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('llmBaseUrl');
             console.log('LLM Base URL reset to default:', DEFAULT_LLM_URL);
         }
+        
+        currentSystemPrompt = newSystemPrompt;
+        localStorage.setItem('systemPrompt', newSystemPrompt);
+        console.log('System prompt saved:', newSystemPrompt);
+        
         settingsOverlay.style.display = 'none';
     });
 
@@ -301,7 +312,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     message: message,
                     history: chatMessages,
-                    llmBaseUrl: currentLlmUrl // Send the configurable URL to the server
+                    llmBaseUrl: currentLlmUrl, // Send the configurable URL to the server
+                    systemPrompt: currentSystemPrompt // Send the system prompt to the server
                 }),
             });
 
