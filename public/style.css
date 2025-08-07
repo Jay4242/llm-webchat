@@ -189,6 +189,25 @@ body.dark-mode #llm-url-input {
     color: #f5f5f5;
 }
 
+#system-prompt-input {
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #fff;
+    color: #333;
+    min-height: 100px;
+    resize: vertical;
+}
+
+body.dark-mode #system-prompt-input {
+    background-color: #4a4a4a;
+    border-color: #666;
+    color: #f5f5f5;
+}
+
 .settings-buttons {
     display: flex;
     justify-content: flex-end;
