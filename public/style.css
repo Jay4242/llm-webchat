@@ -422,6 +422,28 @@ body.dark-mode #delete-branch-button:hover {
     background-color: #218838;
 }
 
+.message .insert-button {
+    margin-left: 5px;
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: static;
+    top: auto;
+    right: auto;
+    width: auto;
+    height: auto;
+    display: inline-block;
+}
+
+.message .insert-button:hover {
+    background-color: #138496;
+}
+
 .message .delete-branch-button {
     margin-left: 5px;
     background-color: #dc3545;
