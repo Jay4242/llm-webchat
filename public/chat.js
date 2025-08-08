@@ -187,6 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         messageElement.appendChild(checkbox);
 
+        const roleToggle = document.createElement('button');
+        roleToggle.classList.add('role-toggle');
+        roleToggle.textContent = sender === 'user' ? '👤' : '🤖';
+        roleToggle.title = 'Toggle role';
+        roleToggle.style.display = 'none';
+        messageElement.appendChild(roleToggle);
+
         const editButton = document.createElement('button');
         editButton.classList.add('edit-button');
         editButton.textContent = 'Edit';
@@ -212,11 +219,30 @@ document.addEventListener('DOMContentLoaded', () => {
             editButton.style.display = 'inline-block';
             branchButton.style.display = 'inline-block';
             deleteBranchButton.style.display = 'inline-block';
+            roleToggle.style.display = 'inline-block';
         });
         messageElement.addEventListener('mouseleave', () => {
             editButton.style.display = 'none';
             branchButton.style.display = 'none';
             deleteBranchButton.style.display = 'none';
+            roleToggle.style.display = 'none';
+        });
+
+        roleToggle.addEventListener('click', () => {
+            const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
+            const message = currentBranch.messages.find(msg => msg.id === messageId);
+            if (message) {
+                // Toggle role between 'user' and 'assistant'
+                const newRole = message.sender === 'user' ? 'assistant' : 'user';
+                message.sender = newRole;
+                
+                // Update the DOM class and button text
+                messageElement.className = `message ${newRole}-message`;
+                roleToggle.textContent = newRole === 'user' ? '👤' : '🤖';
+                
+                // Update the message in the data structure
+                message.sender = newRole;
+            }
         });
 
         editButton.addEventListener('click', () => {
@@ -229,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editButton.style.display = 'none';
             deleteButton.style.display = 'none';
             branchButton.style.display = 'none';
+            roleToggle.style.display = 'none';
 
             const saveButton = document.createElement('button');
             saveButton.classList.add('save-button');
@@ -248,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editButton.style.display = 'inline-block';
                 deleteButton.style.display = 'inline-block';
                 branchButton.style.display = 'inline-block';
+                roleToggle.style.display = 'inline-block';
 
                 // Update the message in the data structure
                 const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
@@ -264,6 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editButton.style.display = 'inline-block';
                 deleteButton.style.display = 'inline-block';
                 branchButton.style.display = 'inline-block';
+                roleToggle.style.display = 'inline-block';
             });
         });
 
