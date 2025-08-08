@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeOverlayButton = document.getElementById('close-overlay-button');
     const themeToggle = document.getElementById('theme-toggle');
     const branchSelect = document.getElementById('branch-select');
+    const deleteBranchButton = document.getElementById('delete-branch-button');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsOverlay = document.getElementById('settings-overlay');
     const llmUrlInput = document.getElementById('llm-url-input');
@@ -95,6 +96,34 @@ document.addEventListener('DOMContentLoaded', () => {
         branchSelect.value = currentBranchId;
     };
 
+    const deleteBranch = (branchId) => {
+        if (conversationBranches.length <= 1) {
+            // Clear the conversation and reset to Branch 0
+            if (confirm('This will clear the entire conversation. Are you sure?')) {
+                conversationBranches = [{
+                    id: 'branch-0',
+                    messages: []
+                }];
+                currentBranchId = 'branch-0';
+                updateBranchSelect();
+                renderBranch(currentBranchId);
+            }
+            return;
+        }
+
+        if (confirm('Are you sure you want to delete this branch?')) {
+            conversationBranches = conversationBranches.filter(branch => branch.id !== branchId);
+            
+            if (currentBranchId === branchId) {
+                // Switch to the first remaining branch
+                currentBranchId = conversationBranches[0].id;
+            }
+            
+            updateBranchSelect();
+            renderBranch(currentBranchId);
+        }
+    };
+
     const createNewBranch = (branchFromMessageId = null) => {
         const newBranchId = `branch-${branchIdCounter++}`;
         let newMessages = [];
@@ -172,13 +201,22 @@ document.addEventListener('DOMContentLoaded', () => {
         branchButton.style.display = 'none';
         messageElement.appendChild(branchButton);
 
+        const deleteBranchButton = document.createElement('button');
+        deleteBranchButton.classList.add('delete-branch-button');
+        deleteBranchButton.textContent = '🗑️';
+        deleteBranchButton.title = 'Delete branch';
+        deleteBranchButton.style.display = 'none';
+        messageElement.appendChild(deleteBranchButton);
+
         messageElement.addEventListener('mouseenter', () => {
             editButton.style.display = 'inline-block';
             branchButton.style.display = 'inline-block';
+            deleteBranchButton.style.display = 'inline-block';
         });
         messageElement.addEventListener('mouseleave', () => {
             editButton.style.display = 'none';
             branchButton.style.display = 'none';
+            deleteBranchButton.style.display = 'none';
         });
 
         editButton.addEventListener('click', () => {
@@ -231,6 +269,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         branchButton.addEventListener('click', () => {
             branchFromMessage(messageId);
+        });
+
+        deleteBranchButton.addEventListener('click', () => {
+            const branchId = currentBranchId;
+            deleteBranch(branchId);
         });
 
         const deleteButton = document.createElement('button');
@@ -341,6 +384,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     branchSelect.addEventListener('change', (e) => {
         renderBranch(e.target.value);
+    });
+
+    deleteBranchButton.addEventListener('click', () => {
+        deleteBranch(currentBranchId);
     });
 
     const addManualMessage = (sender) => {

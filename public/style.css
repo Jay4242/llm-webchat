@@ -355,6 +355,29 @@ body.dark-mode #branch-select {
     color: #f5f5f5;
 }
 
+#delete-branch-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+body.dark-mode #delete-branch-button {
+    background-color: #c82333;
+}
+
+#delete-branch-button:hover {
+    background-color: #c82333;
+}
+
+body.dark-mode #delete-branch-button:hover {
+    background-color: #a71d2a;
+}
+
 .message .branch-button {
     margin-left: 5px;
     background-color: #28a745;
@@ -375,6 +398,28 @@ body.dark-mode #branch-select {
 
 .message .branch-button:hover {
     background-color: #218838;
+}
+
+.message .delete-branch-button {
+    margin-left: 5px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: static;
+    top: auto;
+    right: auto;
+    width: auto;
+    height: auto;
+    display: inline-block;
+}
+
+.message .delete-branch-button:hover {
+    background-color: #c82333;
 }
 
 /* Existing styles below this line */
