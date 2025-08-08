@@ -208,6 +208,13 @@ document.addEventListener('DOMContentLoaded', () => {
         branchButton.style.display = 'none';
         messageElement.appendChild(branchButton);
 
+        const insertButton = document.createElement('button');
+        insertButton.classList.add('insert-button');
+        insertButton.textContent = '+';
+        insertButton.title = 'Insert message here';
+        insertButton.style.display = 'none';
+        messageElement.appendChild(insertButton);
+
         const deleteBranchButton = document.createElement('button');
         deleteBranchButton.classList.add('delete-branch-button');
         deleteBranchButton.textContent = '🗑️';
@@ -218,12 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.addEventListener('mouseenter', () => {
             editButton.style.display = 'inline-block';
             branchButton.style.display = 'inline-block';
+            insertButton.style.display = 'inline-block';
             deleteBranchButton.style.display = 'inline-block';
             roleToggle.style.display = 'inline-block';
         });
         messageElement.addEventListener('mouseleave', () => {
             editButton.style.display = 'none';
             branchButton.style.display = 'none';
+            insertButton.style.display = 'none';
             deleteBranchButton.style.display = 'none';
             roleToggle.style.display = 'none';
         });
@@ -300,6 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
             branchFromMessage(messageId);
         });
 
+        insertButton.addEventListener('click', () => {
+            insertMessageAtPosition(messageId);
+        });
+
         deleteBranchButton.addEventListener('click', () => {
             const branchId = currentBranchId;
             deleteBranch(branchId);
@@ -322,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistory.appendChild(messageElement);
     };
 
-    const appendMessage = (sender, messageText, branchFromMessageId = null) => {
+    const appendMessage = (sender, messageText, branchFromMessageId = null, insertAfterMessageId = null) => {
         const messageId = `msg-${messageIdCounter++}`;
         const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
 
@@ -332,6 +345,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add the new message to the new branch
             newBranch.messages.push({ id: messageId, sender, text: messageText, checked: true });
             renderBranch(newBranch.id);
+        } else if (insertAfterMessageId !== null) {
+            // Insert message after a specific message
+            const branch = currentBranch;
+            const insertIndex = branch.messages.findIndex(msg => msg.id === insertAfterMessageId);
+            if (insertIndex !== -1) {
+                branch.messages.splice(insertIndex + 1, 0, { id: messageId, sender, text: messageText, checked: true });
+                renderBranch(currentBranchId);
+            }
         } else {
             // Add message to the current branch
             currentBranch.messages.push({ id: messageId, sender, text: messageText, checked: true });
@@ -349,6 +370,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const newBranch = createNewBranch(messageId);
         renderBranch(newBranch.id);
+    };
+
+    const insertMessageAtPosition = (messageId) => {
+        // Create a prompt for the new message
+        const newMessageText = prompt('Enter the message to insert:');
+        if (newMessageText !== null) {
+            appendMessage('user', newMessageText, null, messageId);
+        }
     };
 
     const sendMessage = async () => {
