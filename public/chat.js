@@ -215,25 +215,16 @@ document.addEventListener('DOMContentLoaded', () => {
         insertButton.style.display = 'none';
         messageElement.appendChild(insertButton);
 
-        const deleteBranchButton = document.createElement('button');
-        deleteBranchButton.classList.add('delete-branch-button');
-        deleteBranchButton.textContent = '🗑️';
-        deleteBranchButton.title = 'Delete branch';
-        deleteBranchButton.style.display = 'none';
-        messageElement.appendChild(deleteBranchButton);
-
         messageElement.addEventListener('mouseenter', () => {
             editButton.style.display = 'inline-block';
             branchButton.style.display = 'inline-block';
             insertButton.style.display = 'inline-block';
-            deleteBranchButton.style.display = 'inline-block';
             roleToggle.style.display = 'inline-block';
         });
         messageElement.addEventListener('mouseleave', () => {
             editButton.style.display = 'none';
             branchButton.style.display = 'none';
             insertButton.style.display = 'none';
-            deleteBranchButton.style.display = 'none';
             roleToggle.style.display = 'none';
         });
 
@@ -313,10 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
             insertMessageAtPosition(messageId);
         });
 
-        deleteBranchButton.addEventListener('click', () => {
-            const branchId = currentBranchId;
-            deleteBranch(branchId);
-        });
 
         const deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-button');

@@ -444,28 +444,6 @@ body.dark-mode #delete-branch-button:hover {
     background-color: #138496;
 }
 
-.message .delete-branch-button {
-    margin-left: 5px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 3px 8px;
-    font-size: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    position: static;
-    top: auto;
-    right: auto;
-    width: auto;
-    height: auto;
-    display: inline-block;
-}
-
-.message .delete-branch-button:hover {
-    background-color: #c82333;
-}
-
 /* Existing styles below this line */
 
 
