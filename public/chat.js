@@ -171,10 +171,14 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.dataset.messageId = messageId; // Store messageId on the DOM element
         messageElement.setAttribute('role', 'listitem');
 
-        const messageSpan = document.createElement('span');
-        messageSpan.textContent = messageText;
-        messageSpan.classList.add('editable');
-        messageElement.appendChild(messageSpan);
+        const messageContent = document.createElement('div');
+        messageContent.classList.add('message-content');
+        messageContent.textContent = messageText;
+        messageContent.classList.add('editable');
+        messageElement.appendChild(messageContent);
+
+        const messageActions = document.createElement('div');
+        messageActions.classList.add('message-actions');
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
@@ -188,48 +192,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 message.checked = checkbox.checked;
             }
         });
-        messageElement.appendChild(checkbox);
+        messageActions.appendChild(checkbox);
 
         const roleToggle = document.createElement('button');
         roleToggle.classList.add('role-toggle');
         roleToggle.textContent = sender === 'user' ? '👤' : '🤖';
         roleToggle.setAttribute('aria-label', 'Toggle role');
-        roleToggle.style.display = 'none';
-        messageElement.appendChild(roleToggle);
+        roleToggle.style.display = 'inline-block';
+        messageActions.appendChild(roleToggle);
 
         const editButton = document.createElement('button');
         editButton.classList.add('edit-button');
         editButton.textContent = 'Edit';
         editButton.setAttribute('aria-label', 'Edit message');
         editButton.style.display = 'none';
-        messageElement.appendChild(editButton);
+        messageActions.appendChild(editButton);
 
         const branchButton = document.createElement('button');
         branchButton.classList.add('branch-button');
         branchButton.textContent = 'Branch';
         branchButton.setAttribute('aria-label', 'Branch conversation from here');
-        branchButton.style.display = 'none';
-        messageElement.appendChild(branchButton);
+        branchButton.style.display = 'inline-block';
+        messageActions.appendChild(branchButton);
 
         const insertButton = document.createElement('button');
         insertButton.classList.add('insert-button');
         insertButton.textContent = '+';
         insertButton.setAttribute('aria-label', 'Insert message here');
-        insertButton.style.display = 'none';
-        messageElement.appendChild(insertButton);
+        insertButton.style.display = 'inline-block';
+        messageActions.appendChild(insertButton);
 
-        messageElement.addEventListener('mouseenter', () => {
-            editButton.style.display = 'inline-block';
-            branchButton.style.display = 'inline-block';
-            insertButton.style.display = 'inline-block';
-            roleToggle.style.display = 'inline-block';
-        });
-        messageElement.addEventListener('mouseleave', () => {
-            editButton.style.display = 'none';
-            branchButton.style.display = 'none';
-            insertButton.style.display = 'none';
-            roleToggle.style.display = 'none';
-        });
+        // Always show message options
+        editButton.style.display = 'inline-block';
+        branchButton.style.display = 'inline-block';
+        insertButton.style.display = 'inline-block';
+        roleToggle.style.display = 'inline-block';
+        
+        messageElement.appendChild(messageActions);
 
         roleToggle.addEventListener('click', () => {
             const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
@@ -265,19 +264,19 @@ document.addEventListener('DOMContentLoaded', () => {
             saveButton.classList.add('save-button');
             saveButton.textContent = 'Save';
             saveButton.setAttribute('aria-label', 'Save edited message');
-            messageElement.appendChild(saveButton);
+            messageActions.appendChild(saveButton);
 
             const cancelButton = document.createElement('button');
             cancelButton.classList.add('cancel-button');
             cancelButton.textContent = 'Cancel';
             cancelButton.setAttribute('aria-label', 'Cancel editing');
-            messageElement.appendChild(cancelButton);
+            messageActions.appendChild(cancelButton);
 
             saveButton.addEventListener('click', () => {
-                messageSpan.textContent = textarea.value;
-                messageElement.replaceChild(messageSpan, textarea);
-                messageElement.removeChild(saveButton);
-                messageElement.removeChild(cancelButton);
+                messageContent.textContent = textarea.value;
+                messageElement.replaceChild(messageContent, textarea);
+                messageActions.removeChild(saveButton);
+                messageActions.removeChild(cancelButton);
                 editButton.style.display = 'inline-block';
                 deleteButton.style.display = 'inline-block';
                 branchButton.style.display = 'inline-block';
@@ -292,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             cancelButton.addEventListener('click', () => {
-                messageElement.replaceChild(messageSpan, textarea);
-                messageElement.removeChild(saveButton);
-                messageElement.removeChild(cancelButton);
+                messageElement.replaceChild(messageContent, textarea);
+                messageActions.removeChild(saveButton);
+                messageActions.removeChild(cancelButton);
                 editButton.style.display = 'inline-block';
                 deleteButton.style.display = 'inline-block';
                 branchButton.style.display = 'inline-block';
@@ -323,8 +322,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentBranch.messages = currentBranch.messages.filter(msg => msg.id !== messageId);
             }
         });
-        messageElement.appendChild(deleteButton);
+        messageActions.appendChild(deleteButton);
 
+        // Ensure consistent spacing for all message elements
+        messageElement.style.marginBottom = '10px';
+        messageElement.style.padding = '8px 12px';
+        messageElement.style.borderRadius = '15px';
+        messageElement.style.maxWidth = '70%';
+        messageElement.style.wordWrap = 'break-word';
+        messageElement.style.position = 'relative';
+        
         chatHistory.appendChild(messageElement);
     };
 
