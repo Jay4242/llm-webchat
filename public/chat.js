@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.getElementById('theme-toggle');
     const branchSelect = document.getElementById('branch-select');
     const deleteBranchButton = document.getElementById('delete-branch-button');
+    const swapRolesButton = document.getElementById('swap-roles-button');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsOverlay = document.getElementById('settings-overlay');
     const llmUrlInput = document.getElementById('llm-url-input');
@@ -441,6 +442,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     deleteBranchButton.addEventListener('click', () => {
         deleteBranch(currentBranchId);
+    });
+
+    swapRolesButton.addEventListener('click', () => {
+        const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
+        if (!currentBranch || currentBranch.messages.length === 0) return;
+
+        // Swap roles for all messages in the current branch
+        currentBranch.messages.forEach(msg => {
+            msg.sender = msg.sender === 'user' ? 'assistant' : 'user';
+        });
+
+        // Re-render the branch to reflect the role changes
+        renderBranch(currentBranchId);
     });
 
     const addManualMessage = (sender) => {
