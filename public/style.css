@@ -8,11 +8,50 @@ body {
     background-color: #f0f2f5;
     color: #333; /* Default text color for day mode */
     transition: background-color 0.3s ease, color 0.3s ease;
+    line-height: 1.5;
 }
 
 body.dark-mode {
     background-color: #2c2c2c;
     color: #f5f5f5;
+}
+
+/* Focus styles for keyboard navigation */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    body {
+        background-color: white;
+        color: black;
+    }
+    
+    body.dark-mode {
+        background-color: black;
+        color: white;
+    }
+    
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+        outline: 3px solid #000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 .chat-container {
@@ -50,6 +89,11 @@ body.dark-mode .chat-history {
     max-width: 70%;
     word-wrap: break-word;
     position: relative; /* Needed for positioning the delete button */
+    border: 1px solid transparent;
+}
+
+.message:focus-within {
+    border-color: #007bff;
 }
 
 .user-message {
@@ -565,10 +609,24 @@ body.dark-mode #delete-branch-button:hover {
     width: auto;
     height: auto;
     display: inline-block; /* Ensure they are inline with text */
+    min-width: 24px;
+    min-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .message .edit-button:hover, .message .delete-button:hover {
     background-color: #5a6268;
+}
+
+/* Ensure buttons are properly spaced for screen readers */
+.message .edit-button,
+.message .delete-button,
+.message .role-toggle,
+.message .branch-button,
+.message .insert-button {
+    margin: 0 2px;
 }
 
 .message .edit-textarea {
