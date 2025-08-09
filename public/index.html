@@ -7,45 +7,46 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button id="theme-toggle" class="theme-toggle">☀️</button>
-    <button id="settings-toggle" class="settings-toggle">⚙️</button>
+    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode">☀️</button>
+    <button id="settings-toggle" class="settings-toggle" aria-label="Open settings">⚙️</button>
 
-    <div class="chat-container">
+    <div class="chat-container" role="main">
         <div class="branch-controls">
             <label for="branch-select">Current Branch:</label>
-            <select id="branch-select"></select>
-            <button id="delete-branch-button">Delete Branch</button>
+            <select id="branch-select" aria-label="Select conversation branch"></select>
+            <button id="delete-branch-button" aria-label="Delete current branch">Delete Branch</button>
         </div>
-        <div class="chat-history" id="chat-history"></div>
-        <div class="loading-indicator" id="loading-indicator" style="display: none;">
+        <div class="chat-history" id="chat-history" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <div class="loading-indicator" id="loading-indicator" style="display: none;" role="status" aria-label="Loading indicator">
             <span>Loading...</span>
         </div>
         <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Type your message...">
-            <button id="add-user-message-button">Add User Message</button>
-            <button id="add-assistant-message-button">Add Assistant Message</button>
-            <button id="send-button">Send</button>
-            <button id="export-json-button">Export JSON</button>
+            <input type="text" id="user-input" placeholder="Type your message..." aria-label="Enter your message">
+            <button id="add-user-message-button" aria-label="Add user message">Add User Message</button>
+            <button id="add-assistant-message-button" aria-label="Add assistant message">Add Assistant Message</button>
+            <button id="send-button" aria-label="Send message">Send</button>
+            <button id="export-json-button" aria-label="Export conversation as JSON">Export JSON</button>
         </div>
     </div>
 
-    <div id="json-overlay" class="overlay">
+    <div id="json-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="json-overlay-title">
         <div class="overlay-content">
+            <h2 id="json-overlay-title">Conversation JSON</h2>
             <pre id="json-display"></pre>
-            <button id="close-overlay-button">Close</button>
+            <button id="close-overlay-button" aria-label="Close JSON export">Close</button>
         </div>
     </div>
 
-    <div id="settings-overlay" class="overlay">
+    <div id="settings-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="settings-overlay-title">
         <div class="overlay-content settings-overlay-content">
-            <h2>LLM API Settings</h2>
-            <label for="llm-url-input">LLM Base URL:</label>
-            <input type="text" id="llm-url-input" placeholder="e.g., http://localhost:8000/v1">
-            <label for="system-prompt-input">System Prompt:</label>
-            <textarea id="system-prompt-input" placeholder="Enter system prompt for the LLM"></textarea>
+            <h2 id="settings-overlay-title">LLM API Settings</h2>
+            <label for="llm-url-input" aria-label="LLM Base URL">LLM Base URL:</label>
+            <input type="text" id="llm-url-input" placeholder="e.g., http://localhost:8000/v1" aria-label="Enter LLM base URL">
+            <label for="system-prompt-input" aria-label="System Prompt">System Prompt:</label>
+            <textarea id="system-prompt-input" placeholder="Enter system prompt for the LLM" aria-label="Enter system prompt for the LLM"></textarea>
             <div class="settings-buttons">
-                <button id="save-settings-button" class="settings-button">Save</button>
-                <button id="cancel-settings-button" class="settings-button">Cancel</button>
+                <button id="save-settings-button" class="settings-button" aria-label="Save settings">Save</button>
+                <button id="cancel-settings-button" class="settings-button" aria-label="Cancel settings">Cancel</button>
             </div>
         </div>
     </div>
