@@ -618,8 +618,12 @@ body.dark-mode #swap-roles-button:hover {
     color: #666;
 }
 
-.message .edit-button, .message .delete-button {
-    margin-left: 5px;
+.message .edit-button, 
+.message .delete-button, 
+.message .role-toggle, 
+.message .branch-button, 
+.message .insert-button {
+    margin: 0 2px;
     background-color: #6c757d;
     color: white;
     border: none;
@@ -628,20 +632,55 @@ body.dark-mode #swap-roles-button:hover {
     font-size: 10px;
     cursor: pointer;
     transition: background-color 0.2s;
-    position: static; /* Override absolute positioning for these buttons */
+    position: static;
     top: auto;
     right: auto;
     width: auto;
     height: auto;
-    display: inline-block; /* Ensure they are inline with text */
-    min-width: 24px;
-    min-height: 24px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    min-width: 24px;
+    min-height: 24px;
 }
 
-.message .edit-button:hover, .message .delete-button:hover {
+.message .edit-button:hover, 
+.message .delete-button:hover, 
+.message .role-toggle:hover, 
+.message .branch-button:hover, 
+.message .insert-button:hover {
+    background-color: #5a6268;
+}
+
+.user-message .edit-button, 
+.user-message .delete-button, 
+.user-message .role-toggle, 
+.user-message .branch-button, 
+.user-message .insert-button {
+    background-color: #0056b3;
+}
+
+.user-message .edit-button:hover, 
+.user-message .delete-button:hover, 
+.user-message .role-toggle:hover, 
+.user-message .branch-button:hover, 
+.user-message .insert-button:hover {
+    background-color: #004085;
+}
+
+.assistant-message .edit-button, 
+.assistant-message .delete-button, 
+.assistant-message .role-toggle, 
+.assistant-message .branch-button, 
+.assistant-message .insert-button {
+    background-color: #6c757d;
+}
+
+.assistant-message .edit-button:hover, 
+.assistant-message .delete-button:hover, 
+.assistant-message .role-toggle:hover, 
+.assistant-message .branch-button:hover, 
+.assistant-message .insert-button:hover {
     background-color: #5a6268;
 }
 
