@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', `${sender}-message`);
         messageElement.dataset.messageId = messageId; // Store messageId on the DOM element
+        messageElement.setAttribute('role', 'listitem');
 
         const messageSpan = document.createElement('span');
         messageSpan.textContent = messageText;
@@ -178,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkbox.type = 'checkbox';
         checkbox.classList.add('message-toggle');
         checkbox.checked = isChecked;
+        checkbox.setAttribute('aria-label', `Include message in conversation history`);
         checkbox.addEventListener('change', () => {
             const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
             const message = currentBranch.messages.find(msg => msg.id === messageId);
@@ -190,28 +192,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const roleToggle = document.createElement('button');
         roleToggle.classList.add('role-toggle');
         roleToggle.textContent = sender === 'user' ? '👤' : '🤖';
-        roleToggle.title = 'Toggle role';
+        roleToggle.setAttribute('aria-label', 'Toggle role');
         roleToggle.style.display = 'none';
         messageElement.appendChild(roleToggle);
 
         const editButton = document.createElement('button');
         editButton.classList.add('edit-button');
         editButton.textContent = 'Edit';
-        editButton.title = 'Edit message';
+        editButton.setAttribute('aria-label', 'Edit message');
         editButton.style.display = 'none';
         messageElement.appendChild(editButton);
 
         const branchButton = document.createElement('button');
         branchButton.classList.add('branch-button');
         branchButton.textContent = 'Branch';
-        branchButton.title = 'Branch conversation from here';
+        branchButton.setAttribute('aria-label', 'Branch conversation from here');
         branchButton.style.display = 'none';
         messageElement.appendChild(branchButton);
 
         const insertButton = document.createElement('button');
         insertButton.classList.add('insert-button');
         insertButton.textContent = '+';
-        insertButton.title = 'Insert message here';
+        insertButton.setAttribute('aria-label', 'Insert message here');
         insertButton.style.display = 'none';
         messageElement.appendChild(insertButton);
 
@@ -250,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const textarea = document.createElement('textarea');
             textarea.value = currentText;
             textarea.classList.add('edit-textarea');
+            textarea.setAttribute('aria-label', 'Edit message content');
 
             messageElement.replaceChild(textarea, messageSpan);
             editButton.style.display = 'none';
@@ -260,11 +263,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const saveButton = document.createElement('button');
             saveButton.classList.add('save-button');
             saveButton.textContent = 'Save';
+            saveButton.setAttribute('aria-label', 'Save edited message');
             messageElement.appendChild(saveButton);
 
             const cancelButton = document.createElement('button');
             cancelButton.classList.add('cancel-button');
             cancelButton.textContent = 'Cancel';
+            cancelButton.setAttribute('aria-label', 'Cancel editing');
             messageElement.appendChild(cancelButton);
 
             saveButton.addEventListener('click', () => {
@@ -308,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const deleteButton = document.createElement('button');
         deleteButton.classList.add('delete-button');
         deleteButton.textContent = 'x';
-        deleteButton.title = 'Remove message';
+        deleteButton.setAttribute('aria-label', 'Remove message');
         deleteButton.addEventListener('click', () => {
             messageElement.remove();
             // Remove from data structure
@@ -374,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message !== '') {
             appendMessage('user', message);
             userInput.value = ''; // Clear input
+            userInput.focus(); // Focus back on input after sending
         }
 
         // Get the current branch messages, which now includes the newly added message if any
@@ -390,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         loadingIndicator.style.display = 'block'; // Show loading indicator
+        loadingIndicator.setAttribute('aria-live', 'assertive'); // Announce to screen readers
 
         try {
             const response = await fetch('/chat', {
@@ -416,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage('assistant', 'Error: Could not get a response.');
         } finally {
             loadingIndicator.style.display = 'none'; // Hide loading indicator
+            loadingIndicator.removeAttribute('aria-live'); // Remove live attribute
         }
     };
 
