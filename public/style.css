@@ -422,6 +422,31 @@ body.dark-mode #delete-branch-button:hover {
     background-color: #a71d2a;
 }
 
+#swap-roles-button {
+    background-color: #ffc107;
+    color: #212529;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    margin-left: 10px;
+}
+
+body.dark-mode #swap-roles-button {
+    background-color: #e0a800;
+    color: #212529;
+}
+
+#swap-roles-button:hover {
+    background-color: #e0a800;
+}
+
+body.dark-mode #swap-roles-button:hover {
+    background-color: #d39e00;
+}
+
 .message .role-toggle {
     margin-left: 5px;
     background-color: #17a2b8;
