@@ -447,6 +447,30 @@ body.dark-mode #swap-roles-button:hover {
     background-color: #d39e00;
 }
 
+#import-json-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    margin-left: auto; /* Right-align the button */
+}
+
+body.dark-mode #import-json-button {
+    background-color: #218838;
+}
+
+#import-json-button:hover {
+    background-color: #218838;
+}
+
+body.dark-mode #import-json-button:hover {
+    background-color: #1e7e34;
+}
+
 .message .role-toggle {
     margin-left: 5px;
     background-color: #17a2b8;
