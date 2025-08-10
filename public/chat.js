@@ -380,6 +380,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const focusInput = () => {
+        userInput.focus();
+        userInput.select(); // Select text for quick editing
+    };
+
     const sendMessage = async () => {
         const message = userInput.value.trim();
 
@@ -434,6 +439,15 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingIndicator.removeAttribute('aria-live'); // Remove live attribute
         }
     };
+
+    // Add keyboard shortcut for focusing input (Ctrl+L or Cmd+L)
+    document.addEventListener('keydown', (e) => {
+        // Check for Ctrl+L or Cmd+L (Mac) to focus input
+        if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+            e.preventDefault(); // Prevent default browser behavior
+            focusInput();
+        }
+    });
 
     sendButton.addEventListener('click', sendMessage);
 
