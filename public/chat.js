@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const branchSelect = document.getElementById('branch-select');
     const deleteBranchButton = document.getElementById('delete-branch-button');
     const swapRolesButton = document.getElementById('swap-roles-button');
+    const importJsonButton = document.getElementById('import-json-button');
     const settingsToggle = document.getElementById('settings-toggle');
     const settingsOverlay = document.getElementById('settings-overlay');
     const llmUrlInput = document.getElementById('llm-url-input');
@@ -477,6 +478,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Re-render the branch to reflect the role changes
         renderBranch(currentBranchId);
+    });
+
+    importJsonButton.addEventListener('click', () => {
+        const jsonInput = prompt('Paste JSON conversation data:');
+        if (jsonInput === null) return; // User cancelled
+
+        try {
+            const conversationData = JSON.parse(jsonInput);
+            
+            // Validate the structure
+            if (!Array.isArray(conversationData)) {
+                throw new Error('Invalid JSON structure. Expected an array of messages.');
+            }
+            
+            // Clear current branch
+            const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
+            currentBranch.messages = [];
+            
+            // Add messages to current branch
+            conversationData.forEach((msg, index) => {
+                if (msg.role !== 'user' && msg.role !== 'assistant') {
+                    throw new Error(`Invalid role "${msg.role}" at index ${index}. Expected "user" or "assistant".`);
+                }
+                if (typeof msg.content !== 'string') {
+                    throw new Error(`Invalid content at index ${index}. Expected a string.`);
+                }
+                
+                const messageId = `msg-${messageIdCounter++}`;
+                currentBranch.messages.push({
+                    id: messageId,
+                    sender: msg.role,
+                    text: msg.content,
+                    checked: true
+                });
+            });
+            
+            // Re-render the branch
+            renderBranch(currentBranchId);
+            
+        } catch (error) {
+            alert(`Error importing JSON: ${error.message}`);
+            console.error('JSON import error:', error);
+        }
     });
 
     const addManualMessage = (sender) => {
