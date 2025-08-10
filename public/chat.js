@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const jsonOverlay = document.getElementById('json-overlay');
     const jsonDisplay = document.getElementById('json-display');
     const closeOverlayButton = document.getElementById('close-overlay-button');
+    const copyJsonButton = document.getElementById('copy-json-button');
     const themeToggle = document.getElementById('theme-toggle');
     const branchSelect = document.getElementById('branch-select');
     const deleteBranchButton = document.getElementById('delete-branch-button');
@@ -495,6 +496,22 @@ document.addEventListener('DOMContentLoaded', () => {
             .map(msg => ({ role: msg.sender, content: msg.text }));
         jsonDisplay.textContent = JSON.stringify(conversation, null, 2);
         jsonOverlay.style.display = 'flex'; // Show the overlay
+    });
+
+    copyJsonButton.addEventListener('click', () => {
+        const jsonText = jsonDisplay.textContent;
+        navigator.clipboard.writeText(jsonText)
+            .then(() => {
+                // Provide visual feedback
+                const originalText = copyJsonButton.textContent;
+                copyJsonButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyJsonButton.textContent = originalText;
+                }, 2000);
+            })
+            .catch(err => {
+                console.error('Failed to copy JSON: ', err);
+            });
     });
 
     closeOverlayButton.addEventListener('click', () => {
