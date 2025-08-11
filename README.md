@@ -7,6 +7,7 @@ This is a simple web-based chat application that allows users to interact with a
 ## Features
 
 -   **Interactive Chat Interface**: A clean and simple web UI for sending messages and receiving responses.
+-   **Markdown Rendering**: Messages are rendered as HTML using `marked`, allowing for formatted text, code blocks, and more.
 -   **Branching Conversations**: Create new conversation branches from any message, allowing exploration of different conversational paths.
 -   **Selectable Message History**: Each message has a checkbox, allowing users to include or exclude it from the history sent to the LLM.
 -   **Editable and Deletable Messages**: Messages can be edited or deleted from the conversation history.
@@ -30,9 +31,10 @@ To set up the project locally, follow these steps:
     npm install
     ```
 
-3.  **Local LLM Setup**: Ensure you have a local LLM running and accessible at `http://localhost:9090/v1`. This application is configured to use this endpoint. Examples of local LLMs that can expose an OpenAI-compatible API include:
+3.  **Local LLM Setup**: Ensure you have a local LLM running and accessible at `http://anon-ai.lan:9090/v1`. This application is configured to use this endpoint. Examples of local LLMs that can expose an OpenAI-compatible API include:
     -   [Ollama](https://ollama.ai/)
     -   [LM Studio](https://lmstudio.ai/)
+    -   [LocalAI](https://localai.io/)
 
     Refer to your chosen LLM's documentation for instructions on how to set it up and expose an OpenAI-compatible API.
 
@@ -51,6 +53,10 @@ To start the web chat application:
 
 3.  **Chat!**:
     Type your messages into the input field and press Enter or click the "Send" button to interact with the LLM.
+
+## Markdown Rendering
+
+This project uses the `marked` library to render Markdown content in chat messages. The backend exposes a `/render-markdown` endpoint that takes a Markdown string and returns the corresponding HTML. This allows for rich text formatting in the chat interface.
 
 ## Project Structure
 
