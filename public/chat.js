@@ -250,13 +250,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         editButton.addEventListener('click', () => {
-            const currentText = messageSpan.textContent;
+            const currentText = messageContent.textContent;
             const textarea = document.createElement('textarea');
             textarea.value = currentText;
             textarea.classList.add('edit-textarea');
             textarea.setAttribute('aria-label', 'Edit message content');
 
-            messageElement.replaceChild(textarea, messageSpan);
+            messageElement.replaceChild(textarea, messageContent);
             editButton.style.display = 'none';
             deleteButton.style.display = 'none';
             branchButton.style.display = 'none';
