@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const chatHistory = document.getElementById('chat-history');
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
@@ -21,6 +21,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const systemPromptInput = document.getElementById('system-prompt-input');
     const saveSettingsButton = document.getElementById('save-settings-button');
     const cancelSettingsButton = document.getElementById('cancel-settings-button');
+
+    // Helper function to render markdown to HTML via server
+    async function renderMarkdownToHtml(markdownText) {
+        try {
+            const response = await fetch('/render-markdown', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ markdown: markdownText }),
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.html;
+        } catch (error) {
+            console.error('Error rendering markdown:', error);
+            // Fallback to plain text if rendering fails, ensuring HTML entities are escaped
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(markdownText));
+            return `<p>${div.innerHTML}</p>`;
+        }
+    }
 
     // Load theme preference from localStorage
     const currentTheme = localStorage.getItem('theme');
@@ -152,22 +174,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize the first branch
-    createNewBranch();
+    await createNewBranch(); // Make initial call async
 
-    const renderBranch = (branchId) => {
+    const renderBranch = async (branchId) => { // Make async
         chatHistory.innerHTML = ''; // Clear current messages
         const branchToRender = conversationBranches.find(branch => branch.id === branchId);
         if (branchToRender) {
-            branchToRender.messages.forEach(msg => {
-                appendMessageToDOM(msg.sender, msg.text, msg.id, msg.checked);
-            });
+            for (const msg of branchToRender.messages) { // Use for...of to await each message
+                await appendMessageToDOM(msg.sender, msg.text, msg.id, msg.checked);
+            }
             currentBranchId = branchId;
             updateBranchSelect(); // Update dropdown when branch is rendered
         }
         chatHistory.scrollTop = chatHistory.scrollHeight;
     };
 
-    const appendMessageToDOM = (sender, messageText, messageId, isChecked = true) => {
+    const appendMessageToDOM = async (sender, messageText, messageId, isChecked = true) => { // Make async
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', `${sender}-message`);
         messageElement.dataset.messageId = messageId; // Store messageId on the DOM element
@@ -175,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const messageContent = document.createElement('div');
         messageContent.classList.add('message-content');
-        messageContent.textContent = messageText;
+        messageContent.innerHTML = await renderMarkdownToHtml(messageText); // Render markdown to HTML
         messageContent.classList.add('editable');
         messageElement.appendChild(messageContent);
 
@@ -232,7 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         messageElement.appendChild(messageActions);
 
-        roleToggle.addEventListener('click', () => {
+        roleToggle.addEventListener('click', async () => { // Make async
             const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
             const message = currentBranch.messages.find(msg => msg.id === messageId);
             if (message) {
@@ -247,20 +269,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Update the message in the data structure
                 message.sender = newRole;
             }
+            await renderBranch(currentBranchId); // Re-render to update role styles
         });
 
         editButton.addEventListener('click', () => {
-            const currentText = messageContent.textContent;
+            // Get the original markdown text from the data structure, not the rendered HTML
+            const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
+            const messageToEdit = currentBranch.messages.find(msg => msg.id === messageId);
+            if (!messageToEdit) return;
+
+            const currentMarkdownText = messageToEdit.text;
+
             const textarea = document.createElement('textarea');
-            textarea.value = currentText;
+            textarea.value = currentMarkdownText; // Use original markdown
             textarea.classList.add('edit-textarea');
             textarea.setAttribute('aria-label', 'Edit message content');
 
             messageElement.replaceChild(textarea, messageContent);
             editButton.style.display = 'none';
-            deleteButton.style.display = 'none';
+            //deleteButton.style.display = 'none'; // Keep delete button visible during edit for quick removal
             branchButton.style.display = 'none';
             roleToggle.style.display = 'none';
+            checkbox.style.display = 'none'; // Also hide checkbox during edit
 
             const saveButton = document.createElement('button');
             saveButton.classList.add('save-button');
@@ -274,41 +304,50 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelButton.setAttribute('aria-label', 'Cancel editing');
             messageActions.appendChild(cancelButton);
 
-            saveButton.addEventListener('click', () => {
-                messageContent.textContent = textarea.value;
-                messageElement.replaceChild(messageContent, textarea);
-                messageActions.removeChild(saveButton);
-                messageActions.removeChild(cancelButton);
-                editButton.style.display = 'inline-block';
-                deleteButton.style.display = 'inline-block';
-                branchButton.style.display = 'inline-block';
-                roleToggle.style.display = 'inline-block';
-
+            saveButton.addEventListener('click', async () => { // Make async
+                const updatedMarkdownText = textarea.value;
+                
                 // Update the message in the data structure
-                const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
                 const messageToUpdate = currentBranch.messages.find(msg => msg.id === messageId);
                 if (messageToUpdate) {
-                    messageToUpdate.text = textarea.value;
+                    messageToUpdate.text = updatedMarkdownText;
                 }
-            });
 
-            cancelButton.addEventListener('click', () => {
+                // Re-render the content as HTML
+                messageContent.innerHTML = await renderMarkdownToHtml(updatedMarkdownText);
                 messageElement.replaceChild(messageContent, textarea);
                 messageActions.removeChild(saveButton);
                 messageActions.removeChild(cancelButton);
                 editButton.style.display = 'inline-block';
-                deleteButton.style.display = 'inline-block';
+                //deleteButton.style.display = 'inline-block';
                 branchButton.style.display = 'inline-block';
                 roleToggle.style.display = 'inline-block';
+                checkbox.style.display = 'inline-block'; // Show checkbox again
+            });
+
+            cancelButton.addEventListener('click', async () => { // Make async
+                // On cancel, re-render the content using the original (unchanged) markdown
+                const messageToRevert = currentBranch.messages.find(msg => msg.id === messageId);
+                if (messageToRevert) {
+                    messageContent.innerHTML = await renderMarkdownToHtml(messageToRevert.text);
+                }
+                messageElement.replaceChild(messageContent, textarea);
+                messageActions.removeChild(saveButton);
+                messageActions.removeChild(cancelButton);
+                editButton.style.display = 'inline-block';
+                //deleteButton.style.display = 'inline-block';
+                branchButton.style.display = 'inline-block';
+                roleToggle.style.display = 'inline-block';
+                checkbox.style.display = 'inline-block'; // Show checkbox again
             });
         });
 
-        branchButton.addEventListener('click', () => {
-            branchFromMessage(messageId);
+        branchButton.addEventListener('click', async () => { // Make async
+            await branchFromMessage(messageId);
         });
 
-        insertButton.addEventListener('click', () => {
-            insertMessageAtPosition(messageId);
+        insertButton.addEventListener('click', async () => { // Make async
+            await insertMessageAtPosition(messageId);
         });
 
 
@@ -337,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistory.appendChild(messageElement);
     };
 
-    const appendMessage = (sender, messageText, branchFromMessageId = null, insertAfterMessageId = null) => {
+    const appendMessage = async (sender, messageText, branchFromMessageId = null, insertAfterMessageId = null) => { // Make async
         const messageId = `msg-${messageIdCounter++}`;
         const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
 
@@ -346,24 +385,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const newBranch = createNewBranch(branchFromMessageId);
             // Add the new message to the new branch
             newBranch.messages.push({ id: messageId, sender, text: messageText, checked: true });
-            renderBranch(newBranch.id);
+            await renderBranch(newBranch.id); // Await render
         } else if (insertAfterMessageId !== null) {
             // Insert message after a specific message
             const branch = currentBranch;
             const insertIndex = branch.messages.findIndex(msg => msg.id === insertAfterMessageId);
             if (insertIndex !== -1) {
                 branch.messages.splice(insertIndex + 1, 0, { id: messageId, sender, text: messageText, checked: true });
-                renderBranch(currentBranchId);
+                await renderBranch(currentBranchId); // Await render
             }
         } else {
             // Add message to the current branch
             currentBranch.messages.push({ id: messageId, sender, text: messageText, checked: true });
-            appendMessageToDOM(sender, messageText, messageId);
+            await appendMessageToDOM(sender, messageText, messageId); // Await append to DOM
         }
         chatHistory.scrollTop = chatHistory.scrollHeight; // Auto-scroll to bottom
     };
 
-    const branchFromMessage = (messageId) => {
+    const branchFromMessage = async (messageId) => { // Make async
         const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
         if (!currentBranch) return;
 
@@ -371,14 +410,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (branchPointIndex === -1) return;
 
         const newBranch = createNewBranch(messageId);
-        renderBranch(newBranch.id);
+        await renderBranch(newBranch.id); // Await render
     };
 
-    const insertMessageAtPosition = (messageId) => {
+    const insertMessageAtPosition = async (messageId) => { // Make async
         // Create a prompt for the new message
         const newMessageText = prompt('Enter the message to insert:');
         if (newMessageText !== null) {
-            appendMessage('user', newMessageText, null, messageId);
+            await appendMessage('user', newMessageText, null, messageId); // Await append
         }
     };
 
@@ -392,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Only append a new message to the chat history if the input is not empty
         if (message !== '') {
-            appendMessage('user', message);
+            await appendMessage('user', message); // Await append
             userInput.value = ''; // Clear input
             userInput.focus(); // Focus back on input after sending
         }
@@ -459,15 +498,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    branchSelect.addEventListener('change', (e) => {
-        renderBranch(e.target.value);
+    branchSelect.addEventListener('change', async (e) => { // Make async
+        await renderBranch(e.target.value);
     });
 
-    deleteBranchButton.addEventListener('click', () => {
-        deleteBranch(currentBranchId);
+    deleteBranchButton.addEventListener('click', async () => { // Make async
+        await deleteBranch(currentBranchId);
     });
 
-    swapRolesButton.addEventListener('click', () => {
+    swapRolesButton.addEventListener('click', async () => { // Make async
         const currentBranch = conversationBranches.find(branch => branch.id === currentBranchId);
         if (!currentBranch || currentBranch.messages.length === 0) return;
 
@@ -477,10 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Re-render the branch to reflect the role changes
-        renderBranch(currentBranchId);
+        await renderBranch(currentBranchId); // Await render
     });
 
-    importJsonButton.addEventListener('click', () => {
+    importJsonButton.addEventListener('click', async () => { // Make async
         const jsonInput = prompt('Paste JSON conversation data:');
         if (jsonInput === null) return; // User cancelled
 
@@ -515,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             // Re-render the branch
-            renderBranch(currentBranchId);
+            await renderBranch(currentBranchId); // Await render
             
         } catch (error) {
             alert(`Error importing JSON: ${error.message}`);
@@ -523,10 +562,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const addManualMessage = (sender) => {
+    const addManualMessage = async (sender) => { // Make async
         const message = userInput.value.trim();
         if (message === '') return;
-        appendMessage(sender, message);
+        await appendMessage(sender, message); // Await append
         userInput.value = '';
     };
 
@@ -563,5 +602,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Initial render of the first branch
-    renderBranch(currentBranchId);
+    await renderBranch(currentBranchId); // Await initial render
 });

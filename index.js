@@ -1,8 +1,16 @@
 const express = require('express');
 const OpenAI = require('openai');
+const { Marked } = require('marked'); // Import Marked
 
 const app = express();
 const port = 3000;
+
+// Initialize marked for server-side Markdown rendering
+const markedInstance = new Marked({
+  gfm: true,     // GitHub Flavored Markdown
+  breaks: true,  // Convert line breaks to <br>
+  silent: true   // Do not throw errors, return them as string
+});
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
@@ -42,6 +50,23 @@ async function chatWithLLM(messages, llmBaseUrl, systemPrompt) {
     throw error; // Re-throw to be caught by the client
   }
 }
+
+// New API endpoint for rendering markdown
+app.post('/render-markdown', async (req, res) => {
+  const markdown = req.body.markdown;
+  if (typeof markdown !== 'string') {
+    return res.status(400).json({ error: 'Markdown content must be a string.' });
+  }
+
+  try {
+    const html = await markedInstance.parse(markdown); // marked.parse can return a Promise
+    res.json({ html: html });
+  } catch (error) {
+    console.error('Error rendering markdown:', error);
+    res.status(500).json({ error: 'Failed to render markdown' });
+  }
+});
+
 
 // API endpoint for chat
 app.post('/chat', async (req, res) => {
