@@ -2,6 +2,8 @@
 
 This is a simple web-based chat application that allows users to interact with a Large Language Model (LLM) through a web interface. The backend is built with Node.js and Express, and it communicates with a local LLM using the OpenAI API client.
 
+![image.png](image.png)
+
 ## Features
 
 -   **Interactive Chat Interface**: A clean and simple web UI for sending messages and receiving responses.
